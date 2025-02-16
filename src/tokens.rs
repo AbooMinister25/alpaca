@@ -1,5 +1,5 @@
 /// Every token in Alpaca.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenKind {
     // Punctuation
     OpenParen,

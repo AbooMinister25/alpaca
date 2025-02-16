@@ -5,7 +5,7 @@ use std::ops::Range;
 
 pub type Spanned<T> = (T, Span);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct Span {
     pub start: usize,
     pub end: usize,

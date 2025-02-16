@@ -123,7 +123,7 @@ impl<'a> Lexer<'a> {
         self.create_token(tt, value.len())
     }
 
-    fn next_token(&mut self) -> Spanned<TokenKind> {
+    pub fn next_token(&mut self) -> Spanned<TokenKind> {
         if let Some(c) = self.advance() {
             return match c {
                 // Punctuation
