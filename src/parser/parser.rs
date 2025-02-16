@@ -1,8 +1,8 @@
 //! The parser takes a string an outputs an Abstract Syntax Tree (AST).
 //! Alpaca's parser is implemented as a Pratt parser.
 
-use crate::ast::{Annotation, BinOpKind, Expr, Statement, UnaryOpKind};
 use crate::lexer::Lexer;
+use crate::parser::ast::{Annotation, BinOpKind, Expr, Statement, UnaryOpKind};
 use crate::span::{Span, Spanned};
 use crate::tokens::TokenKind;
 
