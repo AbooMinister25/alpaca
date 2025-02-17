@@ -1,7 +1,7 @@
 //! The Abstract Syntax Tree is a tree-like representation of
 //! Alpaca's syntax.
 
-use crate::span::Spanned;
+use crate::{span::Spanned, tokens::TokenKind};
 
 /// Kinds of literals
 #[derive(Debug, PartialEq)]
@@ -12,44 +12,6 @@ pub enum LiteralKind {
     Bool(bool),
     /// String literal (`"foo"`)
     String(String),
-}
-
-/// Unary operators
-#[derive(Debug, PartialEq)]
-pub enum UnaryOpKind {
-    /// `!` operator
-    Not,
-    /// `-` operator
-    Neg,
-}
-
-/// Binary operators
-#[derive(Debug, PartialEq)]
-pub enum BinOpKind {
-    /// `+` operator
-    Add,
-    /// `-` operator
-    Sub,
-    /// `*` operator
-    Mul,
-    /// `/` operator
-    Div,
-    /// `and` operator
-    And,
-    /// `or` operator
-    Or,
-    /// `==` operator
-    Eq,
-    /// `!=` operator
-    Neq,
-    /// `>` operator
-    Gt,
-    /// `>=` operator
-    Ge,
-    /// `<` operator
-    Lt,
-    /// `<=` operator
-    Le,
 }
 
 /// Type annotations.
@@ -77,12 +39,12 @@ pub enum Expr {
     Array(Vec<Spanned<Expr>>),
     /// An unary operation (`!foo`, `-bar`)
     Unary {
-        op: UnaryOpKind,
+        op: TokenKind,
         rhs: Box<Spanned<Expr>>,
     },
     /// A binary operation (`5 + 5`)
-    Binaray {
-        op: BinOpKind,
+    Binary {
+        op: TokenKind,
         lhs: Box<Spanned<Expr>>,
         rhs: Box<Spanned<Expr>>,
     },

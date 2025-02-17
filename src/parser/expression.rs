@@ -1,4 +1,4 @@
-use crate::parser::ast::{Annotation, BinOpKind, Expr, Statement, UnaryOpKind};
+use crate::parser::ast::{Annotation, Expr, Statement};
 use crate::parser::{Parser, ParserError};
 use crate::span::{Span, Spanned};
 use crate::tokens::TokenKind;
@@ -20,6 +20,8 @@ impl<'a> Parser<'a> {
             TokenKind::Integer(_) | TokenKind::String(_) | TokenKind::True | TokenKind::False => {
                 self.parse_literal(token)
             }
+            TokenKind::Ident(s) => Ok((Expr::Ident(s), token.1)),
+            TokenKind::OpenParen => self.parse_grouping(),
             _ => todo!(),
         }
     }
@@ -34,6 +36,54 @@ impl<'a> Parser<'a> {
                 _ => unreachable!("parse_literal is only called when `current` is a literal."),
             },
             current.1,
+        ))
+    }
+
+    fn parse_grouping(&mut self) -> ExprResult {
+        let expr = self.parse_expression(1)?;
+
+        // If next token is a comma, parse as a tuple
+        if self.peek().0 == TokenKind::Comma {
+            return self.parse_tuple(expr);
+        }
+
+        self.consume(&TokenKind::CloseParen)
+            .map_err(|e| e.with_help("Expeted to find a closing parenthesis.".to_string()))?;
+        Ok(expr)
+    }
+
+    fn parse_tuple(&mut self, first: Spanned<Expr>) -> ExprResult {
+        let start = first.1.start;
+        let mut items = vec![first];
+
+        while self.peek().0 != TokenKind::CloseParen {
+            // Consume a comma if we haven't reached the end of the tuple.
+            if self.peek().0 != TokenKind::CloseParen {
+                self.consume(&TokenKind::Comma)
+                    .map_err(|e| e.with_help("Did you forget a comma?".to_string()))?;
+            }
+
+            let item = self.parse_expression(1)?;
+            items.push(item);
+        }
+
+        self.consume(&TokenKind::CloseParen)
+            .map_err(|e| e.with_help("Expeted to find a closing parenthesis.".to_string()))?;
+        let span = Span::from(start - 1..self.current_token_span.end);
+        Ok((Expr::Tuple(items), span))
+    }
+
+    fn parse_unary(&mut self, current: Spanned<TokenKind>) -> ExprResult {
+        // 8 is the precedence level for the `!` and `-` unary operators.
+        let expr = self.parse_expression(8)?;
+        let span = Span::from(current.1.start..expr.1.end);
+
+        Ok((
+            Expr::Unary {
+                op: current.0,
+                rhs: Box::new(expr),
+            },
+            span,
         ))
     }
 }
