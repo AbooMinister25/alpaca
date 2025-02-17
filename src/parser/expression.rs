@@ -86,4 +86,25 @@ impl<'a> Parser<'a> {
             span,
         ))
     }
+
+    fn parse_array(&mut self, current: Spanned<TokenKind>) -> ExprResult {
+        let mut items = Vec::new();
+
+        while self.peek().0 != TokenKind::CloseBracket {
+            let item = self.parse_expression(1)?;
+            items.push(item);
+
+            // Consume a comma if we haven't reached the end of the array.
+            if self.peek().0 != TokenKind::CloseBracket {
+                self.consume(&TokenKind::Comma)
+                    .map_err(|e| e.with_help("Did you forget a comma?".to_string()))?;
+            }
+        }
+
+        self.consume(&TokenKind::CloseBracket)
+            .map_err(|e| e.with_help("Expeted to find a closing bracket.".to_string()))?;
+
+        let span = Span::from(current.1.start..self.current_token_span.end);
+        Ok((Expr::Array(items), span))
+    }
 }
