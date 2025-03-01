@@ -22,6 +22,9 @@ impl<'a> Parser<'a> {
             }
             TokenKind::Ident(s) => Ok((Expr::Ident(s), token.1)),
             TokenKind::OpenParen => self.parse_grouping(),
+            TokenKind::Minus | TokenKind::Bang => self.parse_unary(token),
+            TokenKind::OpenBracket => self.parse_array(token),
+            TokenKind::Do => self.parse_block(token),
             _ => todo!(),
         }
     }
@@ -106,5 +109,18 @@ impl<'a> Parser<'a> {
 
         let span = Span::from(current.1.start..self.current_token_span.end);
         Ok((Expr::Array(items), span))
+    }
+
+    fn parse_block(&mut self, current: Spanned<TokenKind>) -> ExprResult {
+        let mut expressions = vec![];
+
+        while !self.at_end() && self.peek().0 != TokenKind::End {
+            expressions.push(todo!());
+        }
+
+        self.consume(&TokenKind::End)
+            .map_err(|e| e.with_help("Did you forget an `end`?".to_string()))?;
+        let span = Span::from(current.1.start..self.current_token_span.end);
+        Ok((Expr::Block(expressions), span))
     }
 }

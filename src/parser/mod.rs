@@ -3,6 +3,7 @@
 
 mod ast;
 mod expression;
+mod statement;
 
 use crate::lexer::Lexer;
 use crate::span::{Span, Spanned};
